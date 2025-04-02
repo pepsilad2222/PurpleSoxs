@@ -1,4 +1,3 @@
-    private static final String APIKEY = "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"; // need an key for this to work
 /*
  * Albert Tucker 
  * CS375

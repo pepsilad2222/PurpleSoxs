@@ -25,7 +25,7 @@ public class Chatbot {
     public static String resetColor = "\033[0m";
  
     private static OpenAiAssistantEngine assistantSelfCare;
-    private static final String APIKEY = "N0"; // need an key for this to work
+    private static final String APIKEY = "API_KEY"; // need an key for this to work
     private static final File USER_INFO = new File("user_info.txt"); // maybe try to make it where the user can actuly login
     private static final File ACU_DATABASE = new File("acu_database.txt"); //update this to be better
     private static final int RUN_TIMEOUT_SECONDS = 60;

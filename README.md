@@ -75,4 +75,4 @@ MIT License
 ## 👤 Authors
 
 - Michael Aghassi 
-- Albert Tucker Jr.
+- Albert Tucker

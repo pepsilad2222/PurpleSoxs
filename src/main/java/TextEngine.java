@@ -1,7 +1,4 @@
 public class TextEngine {
-    
-}
-public class TextEngine {
 
     public static void clearScreen() {
         try {

@@ -35,7 +35,6 @@ public class OpenAiAssistantEngine {
     // Map to store responses by category (e.g., "run", "assistant", "thread", etc.)
     private final Map<String, List<String>> responseLog;
 
-    // Maximum number of responses to keep per category (to avoid memory issues)
     private final int maxResponsesPerCategory;
 
     /**
@@ -922,6 +921,106 @@ public class OpenAiAssistantEngine {
         } catch (IOException e) {
             System.out.println("Failed to delete " + resourceType + ": " + e.getMessage());
             return false;
+        }
+    }
+
+    public String retrieveAssistant(String testAssistantId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'retrieveAssistant'");
+    }
+
+   
+
+    public String retrieveRunStatus(String threadId) {
+        try {
+            URL url = new URL("https://api.openai.com/v1/threads/" + threadId + "/runs");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Authorization", "Bearer " + USER_API_KEY);
+            conn.setRequestProperty("Content-Type", "application/json");
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode != 200) {
+                return null;
+            }
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            StringBuilder response = new StringBuilder();
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            // Return the full JSON response (a list of runs, likely latest first)
+            JSONObject responseJson = new JSONObject(response.toString());
+            if (responseJson.has("data")) {
+                // Get the most recent run
+                JSONObject latestRun = responseJson.getJSONArray("data").getJSONObject(0);
+                return latestRun.toString();  // Includes "status" and "id"
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean waitForRunCompletion(String threadId, String runId, int timeoutSeconds, int pollIntervalMillis) {
+        long startTime = System.currentTimeMillis();
+        long timeoutMillis = timeoutSeconds * 1000L;
+    
+        while (System.currentTimeMillis() - startTime < timeoutMillis) {
+            try {
+                String statusJson = retrieveRun(threadId, runId); // Assumes this returns JSON with "status"
+                if (statusJson != null) {
+                    JSONObject obj = new JSONObject(statusJson);
+                    String status = obj.optString("status");
+    
+                    if ("completed".equals(status)) {
+                        return true;
+                    } else if ("failed".equals(status) || "cancelled".equals(status)) {
+                        return false;
+                    }
+                }
+    
+                Thread.sleep(pollIntervalMillis);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+    
+        return false; // Timed out
+    }
+
+    public String cancelRun(String threadId, String runId) {
+        try {
+            URL url = new URL("https://api.openai.com/v1/threads/" + threadId + "/runs/" + runId + "/cancel");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Authorization", "Bearer " + apiKey);
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setDoOutput(true); // Required for POST even if there's no body
+    
+            int responseCode = conn.getResponseCode();
+            if (responseCode != 200) {
+                throw new RuntimeException("Failed to cancel run: HTTP " + responseCode);
+            }
+    
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            StringBuilder response = new StringBuilder();
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+    
+            return response.toString(); // JSON with cancelled run info
+    
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

@@ -14,72 +14,77 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.json.JSONObject;
- 
+
 public class Chatbot {
     public static String redColor = "\033[1;31m";
     public static String yellowColor = "\033[1;33m";
     public static String greenColor = "\033[1;32m";
     public static String cyanColor = "\033[1;36m";
     public static String blueColor = "\033[1;34m";
-    public static String purpleColor = "\033[35m"; ;
+    public static String purpleColor = "\033[35m";
     public static String resetColor = "\033[0m";
- 
+
     private static OpenAiAssistantEngine assistantSelfCare;
-    private static final String APIKEY = "API_KEY"; // need an key for this to work
-    private static final File USER_INFO = new File("user_info.txt"); // maybe try to make it where the user can actuly login
-    private static final File ACU_DATABASE = new File("acu_database.txt"); //update this to be better
+    private static final String APIKEY = "API_KEY";
+    private static final File USER_INFO = new File("user_info.txt");
+    private static final File ACU_DATABASE = new File("acu_database.txt");
     private static final int RUN_TIMEOUT_SECONDS = 60;
     private static String usersName;
- 
+
     public static void main(String[] args) {
         usersName = parseUserInfo();
         assistantSelfCare = new OpenAiAssistantEngine(APIKEY);
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
- 
-        System.out.println(purpleColor + "  ----  █████"+resetColor+"╗"+purpleColor+"   ██████"+resetColor+"╗"+purpleColor+"  ██"+resetColor+"╗"+purpleColor+"   ██"+resetColor+"╗  ----" );
-        System.out.println(resetColor+" ---   "+purpleColor+"██"+resetColor+"╔══"+purpleColor+"██"+resetColor+"╗"+purpleColor+"  ██"+resetColor+"╔═══╝"+purpleColor+"  ██"+resetColor+"║"+purpleColor+"   ██"+resetColor+"║" +purpleColor+"  ---" );
-        System.out.println(purpleColor+" ----  ███████"+resetColor+"║"+purpleColor+"  ██"+resetColor+"║"+purpleColor+"      ██"+resetColor+"║"+purpleColor+"   ██"+resetColor+"║  ----" );
-        System.out.println(resetColor+" ---   "+purpleColor+"██"+resetColor+"╔══"+purpleColor+"██"+resetColor+"║"+purpleColor+"  ██"+resetColor+"╚═══╗"+purpleColor+"  ██"+resetColor+"║"+purpleColor+"   ██"+resetColor+"║" +purpleColor+ "  ----" );
-        System.out.println(purpleColor+" ----  ██"+resetColor+"║"+purpleColor+"  ██"+resetColor+"║"+purpleColor+"  ██████"+resetColor+"║"+purpleColor+"   ██████"+resetColor+"║  ---" + resetColor);
-        System.out.println("═════════════════════════════════════");
-        //printRainbowText("══════════════════════════════════════════════"); // I was just missing around, I don't think this should be in the code :)
+
+        TextEngine.clearScreen();
+        printStartupBanner();
+        TextEngine.printWithDelay("\nWelcome to the ACU AI Academic Advisor!");
+
         try {
-            System.out.println("\nWelcome to the ACU AI Academic Advisor!");
-            System.out.println("press " +yellowColor+ "(1) Log in" +resetColor+ " or " +greenColor+ "(2) Create" +resetColor+ " a Profile?");
-            System.out.print("Enter " +yellowColor+ "1" +resetColor+ " or " +greenColor+ "2" +resetColor+ ": ");
+            TextEngine.printWithDelay("press "+yellowColor+ "(1)" +resetColor+ " Log in or " +yellowColor+ "(2)" +resetColor+ " Create a Profile?");
+            TextEngine.printWithDelay("Enter " +yellowColor+ "1" +resetColor+ " or " +yellowColor+ "2" +resetColor+ ": ");
             String choice = reader.readLine().trim();
-     
+
             if (null == choice) {
-                System.out.println("Invalid choice. Please restart and select either 1 or 2.");
+                TextEngine.printWithDelay("Invalid choice. Please restart and select either 1 or 2.");
                 return;
             } else switch (choice) {
                 case "1" -> Login();
                 case "2" -> {
                     createProfile();
-                    System.out.println("Please log in with your new profile.");
+                    TextEngine.printWithDelay("Please log in with your new profile.");
                     Login();
                 }
                 default -> {
-                    System.out.println("Invalid choice. Please restart and select either 1 or 2.");
+                    TextEngine.printWithDelay("Invalid choice. Please restart and select either 1 or 2.");
                     return;
                 }
             }
         } catch (IOException e) {
-            System.out.println("An error occurred: " + e.getMessage()+ "\n, you gone and missed up!!");
+            TextEngine.printWithDelay("An error occurred: " + e.getMessage() + ", you gone and messed up!!");
             return;
         }
-     
+
         assistantSelfCare = new OpenAiAssistantEngine(APIKEY);
         System.out.println("-------------------------");
-        System.out.println("Setting up AI Academic Advisor...");
-     
+        TextEngine.printWithDelay("Setting up AI Academic Advisor...");
+
         String assistantId = setupAssistant();
         if (assistantId == null) {
-            System.out.println("Failed to set up assistant. Exiting.");
+            TextEngine.printWithDelay("Failed to set up assistant. Exiting.");
             return;
         }
-     
+
         startInteractiveChat(assistantId);
+    }
+
+    private static void printStartupBanner() {
+        System.out.println(purpleColor + "  ----  █████" + resetColor + "╗" + purpleColor + "   ██████" + resetColor + "╗" + purpleColor + "  ██" + resetColor + "╗" + purpleColor + "   ██" + resetColor + "╗  " +purpleColor+ "----");
+        System.out.println(resetColor + " ---   " + purpleColor + "██" + resetColor + "╔══" + purpleColor + "██" + resetColor + "╗" + purpleColor + "  ██" + resetColor + "╔═══╝" + purpleColor + "  ██" + resetColor + "║" + purpleColor + "   ██" + resetColor + "║  ---");
+        System.out.println(purpleColor + " ----  ███████" + resetColor + "║" + purpleColor + "  ██" + resetColor + "║" + purpleColor + "      ██" + resetColor + "║" + purpleColor + "   ██" + resetColor + "║  " +purpleColor+"----");
+        System.out.println(resetColor + " ---   " + purpleColor + "██" + resetColor + "╔══" + purpleColor + "██" + resetColor + "║" + purpleColor + "  ██" + resetColor + "╚═══╗" + purpleColor + "  ██" + resetColor + "║" + purpleColor + "   ██" + resetColor + "║  ----");
+        System.out.println(purpleColor + " ----  ██" + resetColor + "║" + purpleColor + "  ██" + resetColor + "║" + purpleColor + "  ██████" + resetColor + "║" + purpleColor + "   ██████" + resetColor + "║  " +purpleColor+"---" + resetColor);
+        System.out.println("═════════════════════════════════════");
     }
 
     private static String parseUserInfo() {
@@ -88,11 +93,11 @@ public class Chatbot {
             if (line != null && line.startsWith("Name:")) {
                 return line.substring("Name:".length()).trim();
             } else {
-                System.out.println("Invalid format in user info file. Expected 'Name: <name>' on first line.");
+                TextEngine.printWithDelay("Invalid format in user info file. Expected 'Name: <name>' on first line.");
                 return null;
             }
         } catch (IOException e) {
-            System.out.println("Error reading user info file: " + e.getMessage());
+            TextEngine.printWithDelay("Error reading user info file: " + e.getMessage());
             return null;
         }
     }
@@ -130,13 +135,13 @@ public class Chatbot {
 
  
         if (assistantId == null) {
-            System.out.println("Failed to create assistant");
+            TextEngine.printWithDelay("Failed to create assistant");
             return null;
         }
  
          
         if (fileId == null || fileId1 == null) {
-            System.out.println("Failed to upload one or more files");
+            TextEngine.printWithDelay("Failed to upload one or more files");
             return null;
         }
  
@@ -155,7 +160,7 @@ public class Chatbot {
         );
  
         if (vectorStoreId == null) {
-            System.out.println("Failed to create vector store");
+            TextEngine.printWithDelay("Failed to create vector store");
             return null;
         }
  
@@ -168,7 +173,7 @@ public class Chatbot {
         boolean updateSuccess = assistantSelfCare.updateAssistant(assistantId,toolResources);
  
         if (!updateSuccess) {
-            System.out.println("Failed to update assistant with vector store");
+            TextEngine.printWithDelay("Failed to update assistant with vector store");
             return null;
         }
  
@@ -181,8 +186,8 @@ public class Chatbot {
         String threadId = null;
  
         System.out.println("\n=== You can now chat with AI ===");
-        System.out.println("Type " +redColor+ "exit" +resetColor+ " to end the conversation");
-        System.out.println("What would you like help with?");
+        TextEngine.printWithDelay("Type " +redColor+ "exit" +resetColor+ " to end the conversation");
+        TextEngine.printWithDelay("What would you like help with?");
  
         try {
             String userInput;
@@ -209,14 +214,14 @@ public class Chatbot {
                     );
                     threadId = assistantSelfCare.createThread(messages, null, null);
                     if (threadId == null) {
-                        System.out.println("Failed to create thread. Please try again.");
+                        TextEngine.printWithDelay("Failed to create thread. Please try again.");
                         continue;
                     }
                 } else {
                     // Add message to existing thread
                     String messageId = assistantSelfCare.addMessageToThread(threadId, userInput);
                     if (messageId == null) {
-                        System.out.println("Failed to send message. Please try again.");
+                        TextEngine.printWithDelay("Failed to send message. Please try again.");
                         continue;
                     }
                 }
@@ -230,7 +235,7 @@ public class Chatbot {
                 );
  
                 if (runId == null) {
-                    System.out.println("Failed to create run. Please try again.");
+                    TextEngine.printWithDelay("Failed to create run. Please try again.");
                     continue;
                 }
  
@@ -246,16 +251,16 @@ public class Chatbot {
                     Thread.currentThread().interrupt();
                 } 
                 if (!completed) {
-                    System.out.println("The assistant encountered an issue. Please try again.");
+                    TextEngine.printWithDelay("The assistant encountered an issue. Please try again.");
                     continue;
                 }
  
                 // Get the assistant's response
                 List<String> retrievedMessages = assistantSelfCare.listMessages(threadId, runId);
                 if (retrievedMessages != null && !retrievedMessages.isEmpty()) {
-                    System.out.println(retrievedMessages.get(0));
+                    TextEngine.printWithDelay(retrievedMessages.get(0));
                 } else {
-                    System.out.println("No response received. Please try again.");
+                    TextEngine.printWithDelay("No response received. Please try again.");
                 }
             }
  
@@ -282,7 +287,7 @@ public class Chatbot {
      
         try {
             if (!USER_INFO.exists()) {
-                System.out.println("User info file not found. Unable to log in.");
+                TextEngine.printWithDelay("User info file not found. Unable to log in.");
                 return;
             }
      
@@ -298,29 +303,29 @@ public class Chatbot {
             }
      
             // Get user input for login
-            System.out.print("Enter your username: ");
+            TextEngine.printWithDelay("Enter you name: ");
             String username = reader.readLine().trim();
-            System.out.print("Enter your password: ");
+            TextEngine.printWithDelay("Enter your password: ");
             String password = reader.readLine().trim();
      
             // Validate credentials
             if (credentials.containsKey(username) && credentials.get(username).equals(password)) {
-                System.out.println(greenColor+"Login successful."+resetColor+"\n Welcome, " + username + "!");
+                TextEngine.printWithDelay(greenColor+"Login successful."+resetColor+"\n Welcome, " + username + "!");
             } else {
-                System.out.println("Invalid username or password. Exiting.");
+                TextEngine.printWithDelay("Invalid username or password. Exiting.");
                 System.exit(1);
             }
         } catch (IOException e) {
-            System.out.println("An error occurred during login: " + e.getMessage());
+            TextEngine.printWithDelay("An error occurred during login: " + e.getMessage());
         }
     }
  
     private static void createProfile() {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         try {
-            System.out.print("Enter a username: ");
+            TextEngine.printWithDelay("Enter a username: ");
             String username = reader.readLine().trim();
-            System.out.print("Enter a password: ");
+            TextEngine.printWithDelay("Enter a password: ");
             String password = reader.readLine().trim();
      
             // Save to user info file
@@ -329,7 +334,7 @@ public class Chatbot {
                 System.out.println(greenColor+"Profile created successfully." +resetColor);
             }
         } catch (IOException e) {
-            System.out.println("An error occurred while creating the profile: " + e.getMessage());
+            TextEngine.printWithDelay("An error occurred while creating the profile: " + e.getMessage());
         }
     }
  

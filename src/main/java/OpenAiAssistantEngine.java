@@ -999,7 +999,7 @@ public class OpenAiAssistantEngine {
             URL url = new URL("https://api.openai.com/v1/threads/" + threadId + "/runs/" + runId + "/cancel");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
-            conn.setRequestProperty("Authorization", "Bearer " + apiKey);
+            conn.setRequestProperty("Authorization", "Bearer " + USER_API_KEY);
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setDoOutput(true); // Required for POST even if there's no body
     

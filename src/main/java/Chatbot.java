@@ -184,9 +184,11 @@ public class Chatbot {
     private static void startInteractiveChat(String assistantId) {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         String threadId = null;
- 
+        printStartupBanner();
         System.out.println("\n=== You can now chat with AI ===");
         TextEngine.printWithDelay("Type " +redColor+ "exit" +resetColor+ " to end the conversation");
+        TextEngine.printWithDelay("Type " +yellowColor+ "setting" +resetColor+ " to change the text settings");
+        TextEngine.printWithDelay("Type " +yellowColor+ "help" +resetColor+ " if you are lost and would like to see some FAQs");
         TextEngine.printWithDelay("What would you like help with?");
  
         try {
@@ -196,8 +198,15 @@ public class Chatbot {
                 userInput = reader.readLine().trim();
                 System.out.println("");
  
+                if (userInput.equalsIgnoreCase("settings"))
+                {
+                    TextEngine.openSettings(reader);
+                    continue;
+                }
+            
                 if (userInput.equalsIgnoreCase("exit")) {
-                    System.out.println("Exiting...");
+                    TextEngine.printWithDelay("Exiting...");
+                    TextEngine.printRainbowText("\nThank you for using the ACU AI Academic Advisor. Goodbye!");
                     break;
                 }
  

@@ -190,7 +190,7 @@
          final int INACTIVITY_TIMEOUT_SECONDS = 40;
  
          TextEngine.clearScreen();
-         //printStartupBanner();
+         printStartupBanner();
          System.out.println("\n=== You can now chat with AI ===");
          TextEngine.printWithDelay("Type " +redColor+ "exit" +resetColor+ " to end the conversation", true);
          TextEngine.printWithDelay("Type " +yellowColor+ "setting" +resetColor+ " to change the text settings", true);

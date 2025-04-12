@@ -18,21 +18,20 @@ public class TextEngine {
         }
     }
 
-    public static void printWithDelay(String message) {
+    public static void printWithDelay(String message, boolean newLine) {
         for (char c : message.toCharArray()) {
             System.out.print(c);
-            System.out.flush();
             try {
-                Thread.sleep(delay);
+                Thread.sleep(20);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                break;
             }
         }
-        System.out.println();
-
-
-        
+        if (newLine) {
+            System.out.println();
+        } else {
+            System.out.flush(); // ensures it prints immediately
+        }
     }
 
     public static void setDelay(int newDelay) {
@@ -45,13 +44,13 @@ public class TextEngine {
 
     public static void openSettings(BufferedReader reader) {
         try {
-            printWithDelay("Enter new text speed in milliseconds (current: " + getDelay() + "): ");
+            printWithDelay("Enter new text speed in milliseconds (current: " + getDelay() + "): ", false );
             String input = reader.readLine().trim();
             int newDelay = Integer.parseInt(input);
             setDelay(newDelay);
-            printWithDelay("Text speed updated to " + newDelay + " ms.");
+            printWithDelay("Text speed updated to " + newDelay + " ms.", true);
         } catch (Exception e) {
-            printWithDelay("Invalid input. Returning to previous activity.");
+            printWithDelay("Invalid input. Returning to previous activity.", true);
         }
     }
     

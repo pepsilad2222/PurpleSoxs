@@ -20,10 +20,10 @@
 ## Sprint Tasks
 
 ### Sprint 0 – Gather FAQ Data
-- [x] Collect questions from academic departments
-- [x] Format data for engine input
-- [x] Define base static FAQ entries
-- [x] Set up `user_info.txt` and sample input
+- [ ] Collect questions from academic departments
+- [ ] Format data for engine input
+- [ ] Define base static FAQ entries
+- [ ] Set up `user_info.txt` and sample input
 
 ---
 
@@ -62,7 +62,7 @@
 
 ---
 
-## 📅 Submission
+## Submission
 **Due Date:** 📆 May 9, 2025  
 **Final Deliverables:**
 - Code repository  

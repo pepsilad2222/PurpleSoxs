@@ -63,7 +63,7 @@
 ---
 
 ## Submission
-**Due Date:** 📆 May 9, 2025  
+**Due Date:** May 9, 2025  
 **Final Deliverables:**
 - Code repository  
 - `chat_history.txt` logger  

@@ -10,10 +10,10 @@
 
 | Sprint   | Dates              | Focus                                     | Deliverables                         |
 |----------|--------------------|-------------------------------------------|--------------------------------------|
-| Sprint 0 | Apr 16 – Apr 22    | Gather FAQ Data Sources                   | Collected question list & answer set |
-| Sprint 1 | Apr 23 – Apr 29    | Implement FAQ Feature + Text Engine       | Dynamic FAQ display and routing      |
-| Sprint 2 | Apr 30 – May 6     | Develop Question Save File + Analytics    | Question logger + 3x promotion logic |
-| Sprint 3 | May 7 – May 9      | Test, Finalize, and Submit                | Final testing + Submission package   |
+| Sprint 0 | Apr 16 – Apr 20    | Gather FAQ Data Sources                   | Collected question list & answer set |
+| Sprint 1 | Apr 21 – Apr 27    | Implement FAQ Feature + Text Engine       | Dynamic FAQ display and routing      |
+| Sprint 2 | Apr 28 – May 4     | Develop Question Save File + Analytics    | Question logger + 3x promotion logic |
+| Sprint 3 | May 5 – May 9      | Test, Finalize, and Submit                | Final testing + Submission package   |
 
 ---
 

@@ -2,7 +2,7 @@
 **Team Name:** PurpleSox 
 **Course:** CS375  
 **Project:** AI-Powered Academic Chatbot  
-**Methodology:** Agile (Scrum-based)
+**Methodology:** Agile 
 
 ---
 
@@ -53,10 +53,8 @@
 ---
 
 ## Tools & Platforms
-- GitHub (Repo + Issues)
+- GitHub (Repo)
 - Java (Core logic)
-- Markdown (Docs)
-- Figma (Design if needed)
 - VSCode / IntelliJ (Dev)
 - PlantUML (UML)
 

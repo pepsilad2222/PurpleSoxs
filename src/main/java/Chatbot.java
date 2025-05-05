@@ -205,19 +205,21 @@ public class Chatbot {
             });
             while (true) {
                 System.out.print("\nQuestion: ");
-                //sessionTimer.reset(); // Start/reset before input
+                sessionTimer.reset(); // Start/reset before input
                 userInput = reader.readLine().trim();
-                //sessionTimer.reset();
+                
                 System.out.println("");
                  
                 if (userInput.equalsIgnoreCase("settings"))
                 {
                     TextEngine.openSettings(reader);
+                    sessionTimer.reset();
                     continue;
                 }
                 if (userInput.equalsIgnoreCase("help"))
                 {
                     Chatbot.FAQs();
+                    sessionTimer.reset();
                     continue;
                 }
              
@@ -228,6 +230,7 @@ public class Chatbot {
                 }
   
                 if (userInput.isEmpty()) {
+                    sessionTimer.reset();
                     continue;
                 }
   
@@ -241,6 +244,7 @@ public class Chatbot {
                     threadId = assistantSelfCare.createThread(messages, null, null);
                     if (threadId == null) {
                         TextEngine.printWithDelay("Failed to create thread. Please try again.", true);
+                        sessionTimer.reset();
                         continue;
                     }
                 } else {
@@ -248,6 +252,7 @@ public class Chatbot {
                     String messageId = assistantSelfCare.addMessageToThread(threadId, userInput);
                     if (messageId == null) {
                         TextEngine.printWithDelay("Failed to send message. Please try again.", true);
+                        sessionTimer.reset();
                         continue;
                     }
                 }
@@ -262,6 +267,7 @@ public class Chatbot {
   
                 if (runId == null) {
                     TextEngine.printWithDelay("Failed to create run. Please try again.", true);
+                    sessionTimer.reset();
                     continue;
                 }
   
@@ -278,6 +284,7 @@ public class Chatbot {
                 } 
                 if (!completed) {
                     TextEngine.printWithDelay("The assistant encountered an issue. Please try again.", true);
+                    sessionTimer.reset();
                     continue;
                 }
   

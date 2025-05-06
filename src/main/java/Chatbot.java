@@ -41,7 +41,7 @@ public class Chatbot {
     private static String assistantId;
     public static final Map<String, Integer> questionCount = new HashMap<>();
     
-    private static final int RUN_TIMEOUT_SECONDS = 60;
+    private static final int RUN_TIMEOUT_SECONDS = 90;
     private static String usersName;
  
  
@@ -85,15 +85,35 @@ public class Chatbot {
         System.out.println("-------------------------");
         TextEngine.printWithDelay("Setting up AI Academic Advisor...", true);
  
-        String assistantId = setupAssistant();
-        if (assistantId == null) {
-            TextEngine.printWithDelay("Failed to set up assistant. Exiting.", true);
-            return;
+        // Try to load assistantId from file
+        if (new File("assistant_id.txt").exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader("assistant_id.txt"))) {
+                assistantId = reader.readLine();
+                System.out.println("Loaded assistant from file: " + assistantId);
+            } catch (IOException e) {
+                System.out.println("Failed to load assistant ID: " + e.getMessage());
+            }
+        }
+        
+        // Try to load vectorStoreId from file
+        if (new File("vector_store_id.txt").exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader("vector_store_id.txt"))) {
+                vectorStoreId = reader.readLine();
+                System.out.println("Loaded vector store from file: " + vectorStoreId);
+            } catch (IOException e) {
+                System.out.println("Failed to load vector store ID: " + e.getMessage());
+            }
+        }
+        
+        // Only create a new assistant/vector store if needed
+        if (assistantId == null || vectorStoreId == null) {
+            assistantId = setupAssistant();
+            if (assistantId == null) return;
         }
  
         startInteractiveChat(assistantId);
     }
- public static void loadQuestionHistory() {
+    public static void loadQuestionHistory() {
         if (!CHAT_HISTORY_FILE.exists()) return;
         try (BufferedReader reader = new BufferedReader(new FileReader(CHAT_HISTORY_FILE))) {
             String line;
@@ -103,41 +123,41 @@ public class Chatbot {
         } catch (IOException e) {
             System.out.println("Failed to read chat history: " + e.getMessage());
         }
- }
+     }
  
- public static void saveQuestion(String question) {
-     // Ignore non-question commands
-     if (question.equalsIgnoreCase("exit") || question.equalsIgnoreCase("reset") || question.equalsIgnoreCase("back") || question.trim().isEmpty()) {
-          return;
-     }
-     
-     try (FileWriter writer = new FileWriter(CHAT_HISTORY_FILE, true)) {
-          writer.write(question + "\n");
-     } catch (IOException e) {
-          System.out.println("Failed to save question: " + e.getMessage());
-     }
-     
-     questionCount.put(question, questionCount.getOrDefault(question, 0) + 1);
-     
-     if (questionCount.get(question) == 3) {
-          try (FileWriter writer = new FileWriter(PERSONAL_FAQ_FILE, true)) {
-               writer.write("- " + question + "\n");
+     public static void saveQuestion(String question) {
+          // Ignore non-question commands
+          if (question.equalsIgnoreCase("exit") || question.equalsIgnoreCase("reset") || question.equalsIgnoreCase("back") || question.trim().isEmpty()) {
+               return;
+          }
+          
+          try (FileWriter writer = new FileWriter(CHAT_HISTORY_FILE, true)) {
+               writer.write(question + "\n");
           } catch (IOException e) {
-               System.out.println("Failed to update personal FAQ: " + e.getMessage());
+               System.out.println("Failed to save question: " + e.getMessage());
+          }
+          
+          questionCount.put(question, questionCount.getOrDefault(question, 0) + 1);
+          
+          if (questionCount.get(question) == 3) {
+               try (FileWriter writer = new FileWriter(PERSONAL_FAQ_FILE, true)) {
+                    writer.write("- " + question + "\n");
+               } catch (IOException e) {
+                    System.out.println("Failed to update personal FAQ: " + e.getMessage());
+               }
           }
      }
-}
  
-    private static void printStartupBanner() {
+     private static void printStartupBanner() {
         System.out.println(purpleColor + "  ----  █████" + resetColor + "╗" + purpleColor + "   ██████" + resetColor + "╗" + purpleColor + "  ██" + resetColor + "╗" + purpleColor + "   ██" + resetColor + "╗  " +purpleColor+ "----");
         System.out.println(resetColor + " ---   " + purpleColor + "██" + resetColor + "╔══" + purpleColor + "██" + resetColor + "╗" + purpleColor + "  ██" + resetColor + "╔═══╝" + purpleColor + "  ██" + resetColor + "║" + purpleColor + "   ██" + resetColor + "║  ---");
         System.out.println(purpleColor + " ----  ███████" + resetColor + "║" + purpleColor + "  ██" + resetColor + "║" + purpleColor + "      ██" + resetColor + "║" + purpleColor + "   ██" + resetColor + "║  " +purpleColor+"----");
         System.out.println(resetColor + " ---   " + purpleColor + "██" + resetColor + "╔══" + purpleColor + "██" + resetColor + "║" + purpleColor + "  ██" + resetColor + "╚═══╗" + purpleColor + "  ██" + resetColor + "║" + purpleColor + "   ██" + resetColor + "║  ----");
         System.out.println(purpleColor + " ----  ██" + resetColor + "║" + purpleColor + "  ██" + resetColor + "║" + purpleColor + "  ██████" + resetColor + "║" + purpleColor + "   ██████" + resetColor + "║  " +purpleColor+"---" + resetColor);
         System.out.println("═════════════════════════════════════");
-    }
+      }
  
-    private static String parseUserInfo() {
+      private static String parseUserInfo() {
         try (BufferedReader reader = new BufferedReader(new java.io.FileReader(USER_INFO))) {
             String line = reader.readLine();
             if (line != null && line.startsWith("Name:")) {
@@ -150,7 +170,7 @@ public class Chatbot {
             TextEngine.printWithDelay("Error reading user info file: " + e.getMessage(), true);
             return null;
         }
-    }
+      }
   
     private static String setupAssistant() {
         // Create assistant
@@ -178,18 +198,16 @@ public class Chatbot {
             0.1,
             null
         );
- 
-        // Upload files to OpenAI
-        String fileId = assistantSelfCare.uploadFile(USER_INFO, "assistants");
-        String fileId1 = assistantSelfCare.uploadFile(ACU_DATABASE, "assistants");
- 
-  
+     
         if (assistantId == null) {
             TextEngine.printWithDelay("Failed to create assistant", true);
             return null;
         }
-  
-          
+
+     // Upload files to OpenAI
+        String fileId = assistantSelfCare.uploadFile(USER_INFO, "assistants");
+        String fileId1 = assistantSelfCare.uploadFile(ACU_DATABASE, "assistants");
+     
         if (fileId == null || fileId1 == null) {
             TextEngine.printWithDelay("Failed to upload one or more files", true);
             return null;
@@ -221,20 +239,33 @@ public class Chatbot {
         toolResources.put("file_search", fileSearch);
   
         boolean updateSuccess = assistantSelfCare.updateAssistant(assistantId,toolResources);
-  
+        boolean updateSuccess = assistant.modifyAssistant(assistantId, null, null, null, null, null, null, null, null, toolResources, null, null);
+        
         if (!updateSuccess) {
             TextEngine.printWithDelay("Failed to update assistant with vector store", true);
             return null;
         }
 
         System.out.println("Assistant setup successfully with ID: " + assistantId);
+        try (FileWriter fw = new FileWriter("assistant_id.txt")) {
+            fw.write(assistantId);
+        } catch (IOException e) {
+            System.out.println("Failed to save assistant ID: " + e.getMessage());
+        }
+        
+        try (FileWriter fw = new FileWriter("vector_store_id.txt")) {
+            fw.write(vectorStoreId);
+        } catch (IOException e) {
+            System.out.println("Failed to save vector store ID: " + e.getMessage());
+        }
         return assistantId;
     }
   
     private static void startInteractiveChat(String assistantId) {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         String threadId = null;
-        final int INACTIVITY_TIMEOUT_SECONDS = 40;
+         String runId = null;
+        final int INACTIVITY_TIMEOUT_SECONDS = 90;
  
         TextEngine.clearScreen();
         printStartupBanner();
@@ -440,28 +471,278 @@ public class Chatbot {
     }
  
     private static void FAQs(){
+
+        TextEngine.printWithDelay("Here are some FAQ's based on different departments in the school:", false);
+        TextEngine.printWithDelay("Section 1. Student Sucess FAQ", false);
+        TextEngine.printWithDelay("Section 2. Your Personal FAQ", false);
+        TextEngine.printWithDelay("Section 3. Academic FAQ", false);
+        TextEngine.printWithDelay("Section 4. ACU IT FAQ", false);
+        TextEngine.printWithDelay("Please type the department number you would like to view (e.g., '1'), or type 'skip' to go directly to the chatbot.", false);
          
-        TextEngine.printWithDelay("here are some questions that you could ask.", false);
-        System.out.println("======================================");
-        TextEngine.printWithDelay("What classes should I take next semester based on my major?", false) ;
-        TextEngine.printWithDelay("----------------", false);
-        TextEngine.printWithDelay("How can I drop or withdraw from a class?", false);
-        TextEngine.printWithDelay("----------------", false);
-        TextEngine.printWithDelay("What happens if I fail a course? Can I retake it?", false);
-        TextEngine.printWithDelay("----------------", false);
-        TextEngine.printWithDelay("How do I declare or change my major or minor?", false);
-        TextEngine.printWithDelay("----------------", false);
-        TextEngine.printWithDelay("Where can I find my degree plan or academic progress report?", false);
-        TextEngine.printWithDelay("----------------", false);
-        TextEngine.printWithDelay("How do I schedule a meeting with my academic advisor?", false);
-        TextEngine.printWithDelay("----------------", false);
-        TextEngine.printWithDelay("What academic support services are available at ACU?", false);
-        TextEngine.printWithDelay("----------------", false);
-        TextEngine.printWithDelay("When are the deadlines for registration, add/drop, or graduation?", false);
-        TextEngine.printWithDelay("----------------", false);
-        TextEngine.printWithDelay("Who do I contact for help with financial aid or billing questions?", false);
- 
-        System.out.println("======================================");
- 
+        if (selection.equals("1") || selection.contains("academic")) {
+                    TextEngine.printWithDelay("\n--- FAQs for Academic Advisor ---", false);
+                    TextEngine.printWithDelay("1. How do I check my current/upcoming registrations?", false);
+                    TextEngine.printWithDelay("2. When can I access my upcoming courses in Canvas?", false);
+                    TextEngine.printWithDelay("3. When do the next courses start?", false);
+                    TextEngine.printWithDelay("4. What if I need to change or drop an upcoming course?", false);
+                    TextEngine.printWithDelay("5. When will final grades be posted?", false);
+                    TextEngine.printWithDelay("6. What happens if I fail my course(s)?", false);
+                    TextEngine.printWithDelay("7. What happens if I’m not financially clear for the next term?", false);
+                    TextEngine.printWithDelay("8. How can I reach my Financial Intake Specialist (FIS) about financial concerns?", false);
+                    TextEngine.printWithDelay("9. How do I reach out to technical support?", false);
+                    TextEngine.printWithDelay("\nPlease enter the question number (1 through 9), type 'chat' to begin chatting, or 'back' to return to departments.", false);
+            
+                    while (true) {
+                        TextEngine.printWithDelay("FAQ #: ", true);
+                        String faqInput = reader.readLine().trim().toLowerCase();
+            
+                        switch (faqInput) {
+                            case "1":
+                                TextEngine.printWithDelay("To check on upcoming/current registrations, please navigate to Degree Works and scroll to the bottom. It will show you your current and registered classes for the next term. To access Degree Works, please go to my.acu.edu, and in the search bar, please type in \"Degree Works\".", false);
+                                break;
+                            case "2":
+                                TextEngine.printWithDelay("You can only access your upcoming courses in Canvas when the professor decides to publish them. Most of the time, you will have access a day or two before the start day of the semester.", false);
+                                break;
+                            case "3":
+                                TextEngine.printWithDelay("The next courses start depending on when you registered for them. If you signed up for summer classes they will start during the summer term. If you signed up for classes during the fall or spring term they will start when you get there. You can check the specific day by going to my.acu.edu and searching for \"First day of classes\".", false);
+                                break;
+                            case "4":
+                                TextEngine.printWithDelay("If you need to drop or change a course, you will need to reach out to your academic advisor and ask them to either drop or change a course. If you drop a course within the first week of the start of the semester (Monday-Friday before 5:00 PM) then you will get a full refund for that course and your transcript will be unaffected. If you decide to change a class to another class during the first week, your transcript will also be unaffected.", false);
+                                break;
+                            case "5":
+                                TextEngine.printWithDelay("Final grades will be posted within 1-2 weeks of the semester concluding. If you go to my.acu.edu and in the search bar type banner, you will have access to see your unofficial transcript and see your grades. Once there in the search bar, type in \"transcript\" and you will see. The transcript will only show a letter grade, so if you wish to see your numerical grade then please navigate to Canvas. Once there, please select courses and on the top right select \"view all courses\". Here you can see all the previous courses you took and what numerical value you achieved in them.", false);
+                                break;
+                            case "6":
+                                TextEngine.printWithDelay("If you fail your course(s) they will count as an F on your transcript and carry a weight of 0 on the 4.0 scale. Regardless of it being a major class, university requirement, or an elective, you would not get credit for the class or classes and would have to retake them. ACU's policy is that you have 3 attempts to retake a class. Every time that you retake it whatever grade you make on the end will replace the current one. Also, ACU will keep the highest score automatically. So if you get a B in a class, decide to retake it for an A and get a C instead you will keep the B.", false);
+                                break;
+                            case "7":
+                                TextEngine.printWithDelay("If you are not financially clear for the next term, then you need to call Student Services at 325-674-2300. They will tell you the next steps and ultimately, if you aren't able to pay, you will be removed from the school.", false);
+                                break;
+                            case "8":
+                                TextEngine.printWithDelay("Along with an academic advisor, each student is assigned a financial advisor as well. To reach them, please call Wildcat Central at 325-674-6770 and ask them who it is.", false);
+                                break;
+                            case "9":
+                                TextEngine.printWithDelay("To reach ACU technical support, please call 325-674-5555. They will assist you with whatever technical problems you have.", false);
+                                break;
+                            case "chat":
+                                TextEngine.printWithDelay("\nEntering chatbot mode...", false);
+                                break;
+                            case "back":
+                                return;
+                            default:
+                                TextEngine.printWithDelay("Please enter a valid number (1–9), 'chat', or 'back'.", true);
+                                continue;
+                        }
+            
+                        if (faqInput.equals("chat")) break;
+                        TextEngine.printWithDelay("\nYou can type another FAQ number, 'chat' to begin chatting, or 'exit' to quit the chatbot.", true);
+                    }
+            
+                    break; // exit FAQ loop to continue to chatbot
+                }
+                else if (selection.equals("2")) {
+                    TextEngine.printWithDelay("\n--- Your Personal FAQ ---", false);
+                    List<String> faqList = new ArrayList<>();
+                
+                    if (!PERSONAL_FAQ_FILE.exists()) {
+                        TextEngine.printWithDelay("You have no personal FAQs yet.", false);
+                    } else {
+                        try (BufferedReader faqReader = new BufferedReader(new FileReader(PERSONAL_FAQ_FILE))) {
+                            String line;
+                            int i = 1;
+                            while ((line = faqReader.readLine()) != null) {
+                                faqList.add(line.substring(2)); // remove "- " prefix
+                                TextEngine.printWithDelay(i + ". " + line.substring(2), false);
+                                i++;
+                            }
+                        } catch (IOException e) {
+                            TextEngine.printWithDelay("Failed to load personal FAQ: " + e.getMessage(), false);
+                        }
+                
+                        if (!faqList.isEmpty()) {
+                            while (true) {
+                                TextEngine.printWithDelay("\nType the number of a question you'd like the advisor to answer, or type 'back': ", true);
+                                String input = reader.readLine().trim().toLowerCase();
+                
+                                if (input.equals("back")) break;
+                
+                                try {
+                                    int choice = Integer.parseInt(input);
+                                    if (choice >= 1 && choice <= faqList.size()) {
+                                        String selectedQuestion = faqList.get(choice - 1);
+                                        TextEngine.printWithDelay("\nYou asked: " + selectedQuestion, false);
+                
+                                        // Create toolResources JSON object
+                                        JSONArray vectorStoreArray = new JSONArray();
+                                        vectorStoreArray.put(vectorStoreId);
+                
+                                        JSONObject fileSearchJson = new JSONObject();
+                                        fileSearchJson.put("vector_store_ids", vectorStoreArray);
+                
+                                        JSONObject toolResourcesJson = new JSONObject();
+                                        toolResourcesJson.put("file_search", fileSearchJson);
+                
+                                        // Prepare initial message
+                                        List<JSONObject> messages = List.of(
+                                            new JSONObject().put("role", "user").put("content", selectedQuestion)
+                                        );
+                
+                                        // Create thread with no tool resources (API doesn’t support it here)
+                                        threadId = assistant.createThread(messages, null, null);
+                
+                                        if (threadId == null) {
+                                            System.out.println("Failed to create thread for this FAQ.");
+                                            continue;
+                                        }
+                
+                                        // Create run with toolResourcesJson
+                                        runId = assistant.createRun(
+                                            threadId,
+                                            assistantId,
+                                            null, // model
+                                            null, // reasoningEffort
+                                            null, // instructions
+                                            null, // additionalInstructions
+                                            null, // additionalMessages
+                                            null, // tools
+                                            null, // metadata
+                                            null, // temperature
+                                            null, // topP
+                                            null, // stream
+                                            null, // maxPromptTokens
+                                            null, // maxCompletionTokens
+                                            null, // truncationStrategy
+                                            null, // toolChoice
+                                            null, // parallelToolCalls
+                                            null, // responseFormat
+                                            toolResourcesJson 
+                                        );
+                                        
+                
+                                        if (runId == null) {
+                                            TextEngine.printWithDelay("Failed to create run.", false);
+                                            continue;
+                                        }
+                
+                                        boolean completed = assistant.waitForRunCompletion(threadId, runId, 60, 1000);
+                
+                                        if (!completed) {
+                                            TextEngine.printWithDelay("The assistant encountered an issue. Please try again.", false);
+                                            continue;
+                                        }
+                
+                                        List<String> replies = assistant.listMessages(threadId, runId);
+                                        if (replies != null && !replies.isEmpty()) {
+                                            TextEngine.printWithDelay("\nAdvisor: " + replies.get(0), false);
+                                        } else {
+                                            TextEngine.printWithDelay("Advisor had no response.", false);
+                                        }
+                
+                                    } else {
+                                        TextEngine.printWithDelay("Invalid number.", false);
+                                    }
+                                } catch (NumberFormatException e) {
+                                    TextEngine.printWithDelay("Please enter a number or 'back'.", false);
+                                }
+                            }
+                        }
+                    }
+                }
+                else if (selection.equals("3")) {
+                     TextEngine.printWithDelay("\n--- FAQs for Academic Advisor (On-Campus) ---", false);
+                     TextEngine.printWithDelay("1. How do I calculate my GPA?", false);
+                     TextEngine.printWithDelay("2. What will my GPA be next semester if I make these certain grades?", false);
+                     TextEngine.printWithDelay("3. What are the prerequisites for this class?", false);
+                     TextEngine.printWithDelay("4. What classes should I take next semester?", false);
+                     TextEngine.printWithDelay("5. What are all the requirements for my major?", false);
+                     TextEngine.printWithDelay("6. What Summer classes are good options for me to take at another school and transfer in?", false);
+                     TextEngine.printWithDelay("\nPlease enter the question number (1 through 6), type 'chat' to begin chatting, or 'back' to return to departments.", false);
+                 
+                     while (true) {
+                         TextEngine.printWithDelay("FAQ #: ", true);
+                         String academicFaq = reader.readLine().trim().toLowerCase();
+                 
+                         switch (academicFaq) {
+                             case "1":
+                                 TextEngine.printWithDelay("You can calculate your GPA by adding up all the grade points you've earned and dividing by the total number of credit hours. Check with Degree Works for your current GPA data.", false);
+                                 break;
+                             case "2":
+                                 TextEngine.printWithDelay("To estimate your GPA for next semester, assume letter grades for each course and apply ACU's grade point scale to see how it impacts your cumulative average.", false);
+                                 break;
+                             case "3":
+                                 TextEngine.printWithDelay("Prerequisites vary by course. You can look up a specific course in the ACU course catalog to see what prerequisites are listed.", false);
+                                 break;
+                             case "4":
+                                 TextEngine.printWithDelay("Course selection depends on your degree audit and what requirements are still pending. Your advisor can help pick classes that align with your graduation timeline.", false);
+                                 break;
+                             case "5":
+                                 TextEngine.printWithDelay("All major requirements are listed in your Degree Works audit. It will show you completed, in-progress, and remaining requirements.", false);
+                                 break;
+                             case "6":
+                                 TextEngine.printWithDelay("General Education and elective classes are good options for summer transfer. Always confirm with your advisor before registering at another school.", false);
+                                 break;
+                             case "chat":
+                                 TextEngine.printWithDelay("\nEntering chatbot mode...", false);
+                                 break;
+                             case "back":
+                                 return;
+                             default:
+                                 TextEngine.printWithDelay("Please enter a valid number (1 through 6), 'chat', or 'back'.", true);
+                                 continue;
+                         }
+                 
+                         if (academicFaq.equals("chat")) break;
+                         TextEngine.printWithDelay("\nYou can type another FAQ number, 'chat' to begin chatting, or 'back' to return.", true);
+                     }
+                 }
+                 else if (selection.equals("4")) {
+                    TextEngine.printWithDelay("\n--- FAQs for ACU IT ---", false);
+                    TextEngine.printWithDelay("1. How do I reset my password?", false);
+                    TextEngine.printWithDelay("2. How do I install lockdown browser?", false);
+                    TextEngine.printWithDelay("3. How do I set up my Wi-Fi?", false);
+                    TextEngine.printWithDelay("4. How do I print?", false);
+                    TextEngine.printWithDelay("5. How to register a non computer/laptop devide to the network?", false);
+                    TextEngine.printWithDelay("\nPlease enter the question number (1–5), type 'chat' to begin chatting, or 'back' to return to departments.", false);
+
+                    while (true) {
+                        TextEngine.printWithDelay("FAQ #: ", true);
+                        String itFaq = reader.readLine().trim().toLowerCase();
+
+                        switch (itFaq) {
+                            case "1":
+                                TextEngine.printWithDelay("To reset your password, go to acu.edu/password. Then log in with your ACU credentials to which it will prompt you to change your password. If you are having trouble, please call ACU IT at 325-674-5555.", false);
+                                break;
+                            case "2":
+                                TextEngine.printWithDelay("To download LockDown Browser to your computer, go to: https://download.respondus.com/lockdown/download.php?id=167846866. This is an ACU specific link and you must use this link to download LockDown Browser for an ACU class.", false);
+                                break;
+                            case "3":
+                                TextEngine.printWithDelay("To join any ACU Wi-Fi network, ACUSecure or ACUGuest, go to your settings and select the network. It will then prompt you to enter your username and password. Your username is your ACU email (without @acu.edu, i.e abc21c) and your password is the same password you use to log into my.acu.edu. If you are having trouble, please call ACU IT at 325-674-5555.", false);
+                                break;
+                            case "4":
+                                TextEngine.printWithDelay("If you want to print from a personal device to any of the printers in the residence halls or labs, go to acu.edu/print. You can log in with your ACU username (without the @acu.edu, i.e abc21c) and password. From here you will be able to upload documents directly. To change the printer you print to you can select it from the drop-down box in the lower right hand corner. You will need to search the printer in the list by typing in the name of the printer, which can be found on a label on each printer.", false);
+                                break;
+                            case "5":
+                                TextEngine.printWithDelay("To start please go here: https://clearpass.acu.edu/guest/auth_login.php?target=%2Fguest%2Fmac_create.php. This is the ACU specific link to register a device. Once there, please select \"Register a Device\" and fill out the form. The MAC address is the physical address of the device and can be found in the settings of the device. If you are having trouble, please call ACU IT at 325-674-5555.", false);
+                                break;
+                            case "chat":
+                                TextEngine.printWithDelay("\nEntering chatbot mode...", false);
+                                break;
+                            case "back":
+                                return;
+                            default:
+                                TextEngine.printWithDelay("Please enter a valid number (1–5), 'chat', or 'back'.", true);
+                                continue;
+                        }
+
+                        if (itFaq.equals("chat")) break;
+                        TextEngine.printWithDelay("\nYou can type another FAQ number, 'chat' to begin chatting, or 'back' to return.", true);
+                    }
+                }
+                else if (selection.equals("skip")) {
+                    break; // skip FAQ
+                } 
+                else {
+                    TextEngine.printWithDelay("Invalid input. Type '1', '2', or 'skip'.", true);
+                }
     }
 }

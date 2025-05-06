@@ -111,9 +111,28 @@ class OpenAiAssistantEngineTest {
             engine.cancelRun(testThreadId, existingRunId);
         }
 
-        String runId = engine.createRun(testThreadId, testAssistantId, null, null, null,
-                null, null, null, null, null, null, null, null,
-                null, null, null, null, null);
+        String runId = engine.createRun(
+            testThreadId,
+            testAssistantId,
+            null, // model
+            null, // reasoningEffort
+            null, // instructions
+            null, // additionalInstructions
+            null, // additionalMessages
+            null, // tools
+            null, // metadata
+            null, // temperature
+            null, // topP
+            null, // stream
+            null, // maxPromptTokens
+            null, // maxCompletionTokens
+            null, // truncationStrategy
+            null, // toolChoice
+            null, // parallelToolCalls
+            null, // responseFormat
+            null  // toolResources
+        );
+        
         assertNotNull(runId, "Run creation should return a valid ID");
 
         String runInfo = engine.retrieveRun(testThreadId, runId);
@@ -123,26 +142,27 @@ class OpenAiAssistantEngineTest {
     @Test
     @Order(9)
     void testWaitForRunCompletion() {
-        assertNotNull(testThreadId, "Thread ID must be available");
         assertNotNull(testAssistantId, "Assistant ID must be available");
-
-        // Cancel any existing runs first
-        String runStatus = engine.retrieveRunStatus(testThreadId);
-        if (runStatus != null && runStatus.contains("\"status\":\"in_progress\"")) {
-            JSONObject statusObj = new JSONObject(runStatus);
-            String existingRunId = statusObj.getString("id");
-            engine.cancelRun(testThreadId, existingRunId);
-        }
-
-        String runId = engine.createRun(testThreadId, testAssistantId, null, null, null,
-                null, null, null, null, null, null, null, null,
-                null, null, null, null, null);
+    
+        // Use a fresh thread to avoid conflict
+        String threadId = engine.createThread(null, null, null);
+        assertNotNull(threadId, "Thread creation failed");
+    
+        // Create a run on the fresh thread
+        String runId = engine.createRun(
+            threadId, testAssistantId,
+            null, null, null, null,
+            null, null, null, null, null, null,
+            null, null, null, null,
+            null, null, null
+        );
+    
         assertNotNull(runId, "Run creation should return a valid ID");
-
-        boolean completed = engine.waitForRunCompletion(testThreadId, runId, 30, 1000);
+    
+        boolean completed = engine.waitForRunCompletion(threadId, runId, 30, 1000);
         assertTrue(completed, "Run should complete within timeout");
     }
-
+    
     @Test
     @Order(10)
     void testCancelRun() {
@@ -157,9 +177,15 @@ class OpenAiAssistantEngineTest {
             engine.cancelRun(testThreadId, existingRunId);
         }
 
-        String runId = engine.createRun(testThreadId, testAssistantId, null, null, null,
-                null, null, null, null, null, null, null, null,
-                null, null, null, null, null);
+        String runId = engine.createRun(
+            testThreadId, testAssistantId, 
+            null, null, null, null,
+            null, null, null, null, null, null,
+            null, null, null, null,
+            null, null, null // This last null is for `toolResources`
+        );
+        
+        
         assertNotNull(runId, "Run creation should return a valid ID");
 
         String cancelResponse = engine.cancelRun(testThreadId, runId);

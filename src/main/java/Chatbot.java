@@ -6,17 +6,22 @@
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
  
 import org.json.JSONObject;
+import org.json.JSONArray;
  
 public class Chatbot {
+ //all the colors needed for this code
     public static String redColor = "\033[1;31m";
     public static String yellowColor = "\033[1;33m";
     public static String greenColor = "\033[1;32m";
@@ -26,15 +31,23 @@ public class Chatbot {
     public static String resetColor = "\033[0m";
  
     private static OpenAiAssistantEngine assistantSelfCare;
+    private static OpenAiAssistantEngine assistant;
     private static final String APIKEY = "API_KEY";
-    private static final File USER_INFO = new File("user_info.txt");
-    private static final File ACU_DATABASE = new File("acu_database.txt");
+    private static final File USER_INFO_FILE = new File("user_info.txt");
+    private static final File ACU_DATABASE_FILE = new File("acu_database.txt");
+    private static final File CHAT_HISTORY_FILE = new File("chat_history.txt");
+    private static final File PERSONAL_FAQ_FILE = new File("personal_faq.txt");
+    private static String vectorStoreId;
+    private static String assistantId;
+    public static final Map<String, Integer> questionCount = new HashMap<>();
+    
     private static final int RUN_TIMEOUT_SECONDS = 60;
     private static String usersName;
  
  
     public static void main(String[] args) {
-         
+        loadQuestionHistory();
+        
         usersName = parseUserInfo();
         assistantSelfCare = new OpenAiAssistantEngine(APIKEY);
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -80,6 +93,40 @@ public class Chatbot {
  
         startInteractiveChat(assistantId);
     }
+ public static void loadQuestionHistory() {
+        if (!CHAT_HISTORY_FILE.exists()) return;
+        try (BufferedReader reader = new BufferedReader(new FileReader(CHAT_HISTORY_FILE))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                questionCount.put(line, questionCount.getOrDefault(line, 0) + 1);
+            }
+        } catch (IOException e) {
+            System.out.println("Failed to read chat history: " + e.getMessage());
+        }
+ }
+ 
+ public static void saveQuestion(String question) {
+     // Ignore non-question commands
+     if (question.equalsIgnoreCase("exit") || question.equalsIgnoreCase("reset") || question.equalsIgnoreCase("back") || question.trim().isEmpty()) {
+          return;
+     }
+     
+     try (FileWriter writer = new FileWriter(CHAT_HISTORY_FILE, true)) {
+          writer.write(question + "\n");
+     } catch (IOException e) {
+          System.out.println("Failed to save question: " + e.getMessage());
+     }
+     
+     questionCount.put(question, questionCount.getOrDefault(question, 0) + 1);
+     
+     if (questionCount.get(question) == 3) {
+          try (FileWriter writer = new FileWriter(PERSONAL_FAQ_FILE, true)) {
+               writer.write("- " + question + "\n");
+          } catch (IOException e) {
+               System.out.println("Failed to update personal FAQ: " + e.getMessage());
+          }
+     }
+}
  
     private static void printStartupBanner() {
         System.out.println(purpleColor + "  ----  █████" + resetColor + "╗" + purpleColor + "   ██████" + resetColor + "╗" + purpleColor + "  ██" + resetColor + "╗" + purpleColor + "   ██" + resetColor + "╗  " +purpleColor+ "----");

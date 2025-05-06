@@ -10,18 +10,20 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
- 
-import org.json.JSONObject;
+
 import org.json.JSONArray;
+import org.json.JSONObject;
  
 public class Chatbot {
  //all the colors needed for this code
+    public static String threadId = null;
+    public static String runId = null;
     public static String redColor = "\033[1;31m";
     public static String yellowColor = "\033[1;33m";
     public static String greenColor = "\033[1;32m";
@@ -40,7 +42,7 @@ public class Chatbot {
     private static String vectorStoreId;
     private static String assistantId;
     public static final Map<String, Integer> questionCount = new HashMap<>();
-    
+    public static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     private static final int RUN_TIMEOUT_SECONDS = 90;
     private static String usersName;
  
@@ -48,9 +50,9 @@ public class Chatbot {
     public static void main(String[] args) {
         loadQuestionHistory();
         
-        usersName = parseUserInfo();
+        //usersName = parseUserInfo();
         assistantSelfCare = new OpenAiAssistantEngine(APIKEY);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        
  
         TextEngine.clearScreen();
         printStartupBanner();
@@ -85,25 +87,7 @@ public class Chatbot {
         System.out.println("-------------------------");
         TextEngine.printWithDelay("Setting up AI Academic Advisor...", true);
  
-        // Try to load assistantId from file
-        if (new File("assistant_id.txt").exists()) {
-            try (BufferedReader reader = new BufferedReader(new FileReader("assistant_id.txt"))) {
-                assistantId = reader.readLine();
-                System.out.println("Loaded assistant from file: " + assistantId);
-            } catch (IOException e) {
-                System.out.println("Failed to load assistant ID: " + e.getMessage());
-            }
-        }
-        
-        // Try to load vectorStoreId from file
-        if (new File("vector_store_id.txt").exists()) {
-            try (BufferedReader reader = new BufferedReader(new FileReader("vector_store_id.txt"))) {
-                vectorStoreId = reader.readLine();
-                System.out.println("Loaded vector store from file: " + vectorStoreId);
-            } catch (IOException e) {
-                System.out.println("Failed to load vector store ID: " + e.getMessage());
-            }
-        }
+       
         
         // Only create a new assistant/vector store if needed
         if (assistantId == null || vectorStoreId == null) {
@@ -158,7 +142,7 @@ public class Chatbot {
       }
  
       private static String parseUserInfo() {
-        try (BufferedReader reader = new BufferedReader(new java.io.FileReader(USER_INFO))) {
+        try (BufferedReader reader = new BufferedReader(new java.io.FileReader(USER_INFO_FILE))) {
             String line = reader.readLine();
             if (line != null && line.startsWith("Name:")) {
                 return line.substring("Name:".length()).trim();
@@ -205,8 +189,8 @@ public class Chatbot {
         }
 
      // Upload files to OpenAI
-        String fileId = assistantSelfCare.uploadFile(USER_INFO, "assistants");
-        String fileId1 = assistantSelfCare.uploadFile(ACU_DATABASE, "assistants");
+        String fileId = assistantSelfCare.uploadFile(USER_INFO_FILE, "assistants");
+        String fileId1 = assistantSelfCare.uploadFile(ACU_DATABASE_FILE, "assistants");
      
         if (fileId == null || fileId1 == null) {
             TextEngine.printWithDelay("Failed to upload one or more files", true);
@@ -238,7 +222,7 @@ public class Chatbot {
         fileSearch.put("vector_store_ids", List.of(vectorStoreId));
         toolResources.put("file_search", fileSearch);
   
-        boolean updateSuccess = assistantSelfCare.updateAssistant(assistantId,toolResources);
+        //boolean updateSuccess = assistantSelfCare.updateAssistant(assistantId,toolResources);
         boolean updateSuccess = assistant.modifyAssistant(assistantId, null, null, null, null, null, null, null, null, toolResources, null, null);
         
         if (!updateSuccess) {
@@ -262,9 +246,6 @@ public class Chatbot {
     }
   
     private static void startInteractiveChat(String assistantId) {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        String threadId = null;
-         String runId = null;
         final int INACTIVITY_TIMEOUT_SECONDS = 90;
  
         TextEngine.clearScreen();
@@ -336,12 +317,12 @@ public class Chatbot {
                 }
   
                 // Create and monitor run
-                String runId = assistantSelfCare.createRun(
+                /*String runId = assistantSelfCare.createRun(
                     threadId,
                     assistantId,
                     null, null, null, null, null, null, null, null, null, null,
                     null, null, null, null, null, null
-                );
+                );*/
   
                 if (runId == null) {
                     TextEngine.printWithDelay("Failed to create run. Please try again.", true);
@@ -352,7 +333,7 @@ public class Chatbot {
                 AtomicBoolean isRunning = new AtomicBoolean(true);
                 Thread loadingThread = startLoadingAnimation(isRunning);
   
-                boolean completed = assistantSelfCare.waitForRunCompletion(threadId, runId, RUN_TIMEOUT_SECONDS);
+                boolean completed = assistantSelfCare.waitForRunCompletion(threadId, runId, 60,1000);
   
                 isRunning.set(false);
                 try {
@@ -393,17 +374,16 @@ public class Chatbot {
     }   
   
     private static void Login() {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         Map<String, String> credentials = new HashMap<>();
      
         try {
-            if (!USER_INFO.exists()) {
+            if (!USER_INFO_FILE.exists()) {
                 TextEngine.printWithDelay("User info file not found. Unable to log in.", true);
                 return;
             }
       
             // Read user info into a map (assuming format: username,password)
-            try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(new java.io.FileInputStream(USER_INFO)))) {
+            try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(new java.io.FileInputStream(USER_INFO_FILE)))) {
                 String line;
                 while ((line = fileReader.readLine()) != null) {
                     String[] parts = line.split(",");
@@ -432,7 +412,6 @@ public class Chatbot {
     }
   
     private static void createProfile() {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         try {
             TextEngine.printWithDelay("Enter a username: ", false);
             String username = reader.readLine().trim();
@@ -440,7 +419,7 @@ public class Chatbot {
             String password = reader.readLine().trim();
      
             // Save to user info file
-            try (java.io.FileWriter writer = new java.io.FileWriter(USER_INFO, true)) {
+            try (java.io.FileWriter writer = new java.io.FileWriter(USER_INFO_FILE, true)) {
                 writer.write(username + "," + password + "\n");
                 System.out.println(greenColor+"Profile created successfully." +resetColor);
             }
@@ -470,7 +449,8 @@ public class Chatbot {
         return loadingThread;
     }
  
-    private static void FAQs(){
+    private static void FAQs() throws IOException{
+        
         TextEngine.printWithDelay("Here are some FAQ's based on different departments in the school:", false);
         TextEngine.printWithDelay("Section 1. Student Sucess FAQ", false);
         TextEngine.printWithDelay("Section 2. Your Personal FAQ", false);
@@ -478,6 +458,8 @@ public class Chatbot {
         TextEngine.printWithDelay("Section 4. ACU IT FAQ", false);
         TextEngine.printWithDelay("Please type the department number you would like to view (e.g., '1'), or type 'skip' to go directly to the chatbot.", false);
          
+        TextEngine.printWithDelay("Section: ", true);
+        String selection = reader.readLine().trim().toLowerCase();
         if (selection.equals("1") || selection.contains("academic")) {
              TextEngine.printWithDelay("\n--- FAQs for Academic Advisor ---", false);
              TextEngine.printWithDelay("1. How do I check my current/upcoming registrations?", false);
@@ -536,9 +518,11 @@ public class Chatbot {
                         if (faqInput.equals("chat")) break;
                         
                         TextEngine.printWithDelay("\nYou can type another FAQ number, 'chat' to begin chatting, or 'exit' to quit the chatbot.", true);
+                        break;
                     }
             
-                    break; // exit FAQ loop to continue to chatbot
+                    //break; // exit FAQ loop to continue to chatbot
+                    
                 }
                 else if (selection.equals("2")) {
                     TextEngine.printWithDelay("\n--- Your Personal FAQ ---", false);
@@ -738,11 +722,12 @@ public class Chatbot {
                         TextEngine.printWithDelay("\nYou can type another FAQ number, 'chat' to begin chatting, or 'back' to return.", true);
                     }
                 }
-                else if (selection.equals("skip")) {
-                    break; // skip FAQ
-                } 
+                //else if (selection.equals("skip")) {
+                    //break; // skip FAQ
+                //} 
                 else {
                     TextEngine.printWithDelay("Invalid input. Type '1', '2', or 'skip'.", true);
                 }
+            
     }
 }

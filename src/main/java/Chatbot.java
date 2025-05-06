@@ -471,7 +471,6 @@ public class Chatbot {
     }
  
     private static void FAQs(){
-
         TextEngine.printWithDelay("Here are some FAQ's based on different departments in the school:", false);
         TextEngine.printWithDelay("Section 1. Student Sucess FAQ", false);
         TextEngine.printWithDelay("Section 2. Your Personal FAQ", false);
@@ -480,61 +479,62 @@ public class Chatbot {
         TextEngine.printWithDelay("Please type the department number you would like to view (e.g., '1'), or type 'skip' to go directly to the chatbot.", false);
          
         if (selection.equals("1") || selection.contains("academic")) {
-                    TextEngine.printWithDelay("\n--- FAQs for Academic Advisor ---", false);
-                    TextEngine.printWithDelay("1. How do I check my current/upcoming registrations?", false);
-                    TextEngine.printWithDelay("2. When can I access my upcoming courses in Canvas?", false);
-                    TextEngine.printWithDelay("3. When do the next courses start?", false);
-                    TextEngine.printWithDelay("4. What if I need to change or drop an upcoming course?", false);
-                    TextEngine.printWithDelay("5. When will final grades be posted?", false);
-                    TextEngine.printWithDelay("6. What happens if I fail my course(s)?", false);
-                    TextEngine.printWithDelay("7. What happens if I’m not financially clear for the next term?", false);
-                    TextEngine.printWithDelay("8. How can I reach my Financial Intake Specialist (FIS) about financial concerns?", false);
-                    TextEngine.printWithDelay("9. How do I reach out to technical support?", false);
-                    TextEngine.printWithDelay("\nPlease enter the question number (1 through 9), type 'chat' to begin chatting, or 'back' to return to departments.", false);
+             TextEngine.printWithDelay("\n--- FAQs for Academic Advisor ---", false);
+             TextEngine.printWithDelay("1. How do I check my current/upcoming registrations?", false);
+             TextEngine.printWithDelay("2. When can I access my upcoming courses in Canvas?", false);
+             TextEngine.printWithDelay("3. When do the next courses start?", false);
+             TextEngine.printWithDelay("4. What if I need to change or drop an upcoming course?", false);
+             TextEngine.printWithDelay("5. When will final grades be posted?", false);
+             TextEngine.printWithDelay("6. What happens if I fail my course(s)?", false);
+             TextEngine.printWithDelay("7. What happens if I’m not financially clear for the next term?", false);
+             TextEngine.printWithDelay("8. How can I reach my Financial Intake Specialist (FIS) about financial concerns?", false);
+             TextEngine.printWithDelay("9. How do I reach out to technical support?", false);
+             TextEngine.printWithDelay("\nPlease enter the question number (1 through 9), type 'chat' to begin chatting, or 'back' to return to departments.", false);
             
-                    while (true) {
-                        TextEngine.printWithDelay("FAQ #: ", true);
-                        String faqInput = reader.readLine().trim().toLowerCase();
+             while (true) {
+                  TextEngine.printWithDelay("FAQ #: ", true);
+                  String faqInput = reader.readLine().trim().toLowerCase();
             
-                        switch (faqInput) {
-                            case "1":
-                                TextEngine.printWithDelay("To check on upcoming/current registrations, please navigate to Degree Works and scroll to the bottom. It will show you your current and registered classes for the next term. To access Degree Works, please go to my.acu.edu, and in the search bar, please type in \"Degree Works\".", false);
-                                break;
-                            case "2":
-                                TextEngine.printWithDelay("You can only access your upcoming courses in Canvas when the professor decides to publish them. Most of the time, you will have access a day or two before the start day of the semester.", false);
-                                break;
-                            case "3":
-                                TextEngine.printWithDelay("The next courses start depending on when you registered for them. If you signed up for summer classes they will start during the summer term. If you signed up for classes during the fall or spring term they will start when you get there. You can check the specific day by going to my.acu.edu and searching for \"First day of classes\".", false);
-                                break;
-                            case "4":
-                                TextEngine.printWithDelay("If you need to drop or change a course, you will need to reach out to your academic advisor and ask them to either drop or change a course. If you drop a course within the first week of the start of the semester (Monday-Friday before 5:00 PM) then you will get a full refund for that course and your transcript will be unaffected. If you decide to change a class to another class during the first week, your transcript will also be unaffected.", false);
-                                break;
-                            case "5":
-                                TextEngine.printWithDelay("Final grades will be posted within 1-2 weeks of the semester concluding. If you go to my.acu.edu and in the search bar type banner, you will have access to see your unofficial transcript and see your grades. Once there in the search bar, type in \"transcript\" and you will see. The transcript will only show a letter grade, so if you wish to see your numerical grade then please navigate to Canvas. Once there, please select courses and on the top right select \"view all courses\". Here you can see all the previous courses you took and what numerical value you achieved in them.", false);
-                                break;
-                            case "6":
-                                TextEngine.printWithDelay("If you fail your course(s) they will count as an F on your transcript and carry a weight of 0 on the 4.0 scale. Regardless of it being a major class, university requirement, or an elective, you would not get credit for the class or classes and would have to retake them. ACU's policy is that you have 3 attempts to retake a class. Every time that you retake it whatever grade you make on the end will replace the current one. Also, ACU will keep the highest score automatically. So if you get a B in a class, decide to retake it for an A and get a C instead you will keep the B.", false);
-                                break;
-                            case "7":
-                                TextEngine.printWithDelay("If you are not financially clear for the next term, then you need to call Student Services at 325-674-2300. They will tell you the next steps and ultimately, if you aren't able to pay, you will be removed from the school.", false);
-                                break;
-                            case "8":
-                                TextEngine.printWithDelay("Along with an academic advisor, each student is assigned a financial advisor as well. To reach them, please call Wildcat Central at 325-674-6770 and ask them who it is.", false);
-                                break;
-                            case "9":
-                                TextEngine.printWithDelay("To reach ACU technical support, please call 325-674-5555. They will assist you with whatever technical problems you have.", false);
-                                break;
-                            case "chat":
-                                TextEngine.printWithDelay("\nEntering chatbot mode...", false);
-                                break;
-                            case "back":
-                                return;
-                            default:
-                                TextEngine.printWithDelay("Please enter a valid number (1–9), 'chat', or 'back'.", true);
-                                continue;
+                  switch (faqInput) {
+                       case "1":
+                       TextEngine.printWithDelay("To check on upcoming/current registrations, please navigate to Degree Works and scroll to the bottom. It will show you your current and registered classes for the next term. To access Degree Works, please go to my.acu.edu, and in the search bar, please type in \"Degree Works\".", false);
+                       break;
+                       case "2":
+                            TextEngine.printWithDelay("You can only access your upcoming courses in Canvas when the professor decides to publish them. Most of the time, you will have access a day or two before the start day of the semester.", false);
+                            break;
+                       case "3":
+                            TextEngine.printWithDelay("The next courses start depending on when you registered for them. If you signed up for summer classes they will start during the summer term. If you signed up for classes during the fall or spring term they will start when you get there. You can check the specific day by going to my.acu.edu and searching for \"First day of classes\".", false);
+                            break;
+                       case "4":
+                            TextEngine.printWithDelay("If you need to drop or change a course, you will need to reach out to your academic advisor and ask them to either drop or change a course. If you drop a course within the first week of the start of the semester (Monday-Friday before 5:00 PM) then you will get a full refund for that course and your transcript will be unaffected. If you decide to change a class to another class during the first week, your transcript will also be unaffected.", false);
+                            break;
+                       case "5":
+                            TextEngine.printWithDelay("Final grades will be posted within 1-2 weeks of the semester concluding. If you go to my.acu.edu and in the search bar type banner, you will have access to see your unofficial transcript and see your grades. Once there in the search bar, type in \"transcript\" and you will see. The transcript will only show a letter grade, so if you wish to see your numerical grade then please navigate to Canvas. Once there, please select courses and on the top right select \"view all courses\". Here you can see all the previous courses you took and what numerical value you achieved in them.", false);
+                            break;
+                       case "6":
+                            TextEngine.printWithDelay("If you fail your course(s) they will count as an F on your transcript and carry a weight of 0 on the 4.0 scale. Regardless of it being a major class, university requirement, or an elective, you would not get credit for the class or classes and would have to retake them. ACU's policy is that you have 3 attempts to retake a class. Every time that you retake it whatever grade you make on the end will replace the current one. Also, ACU will keep the highest score automatically. So if you get a B in a class, decide to retake it for an A and get a C instead you will keep the B.", false);
+                            break;
+                       case "7":
+                            TextEngine.printWithDelay("If you are not financially clear for the next term, then you need to call Student Services at 325-674-2300. They will tell you the next steps and ultimately, if you aren't able to pay, you will be removed from the school.", false);
+                            break;
+                       case "8":
+                            TextEngine.printWithDelay("Along with an academic advisor, each student is assigned a financial advisor as well. To reach them, please call Wildcat Central at 325-674-6770 and ask them who it is.", false);
+                            break;
+                       case "9":
+                            TextEngine.printWithDelay("To reach ACU technical support, please call 325-674-5555. They will assist you with whatever technical problems you have.", false);
+                            break;
+                       case "chat":
+                            TextEngine.printWithDelay("\nEntering chatbot mode...", false);
+                            break;
+                       case "back":
+                            return;
+                       default:
+                            TextEngine.printWithDelay("Please enter a valid number (1–9), 'chat', or 'back'.", true);
+                            continue;
                         }
             
                         if (faqInput.equals("chat")) break;
+                        
                         TextEngine.printWithDelay("\nYou can type another FAQ number, 'chat' to begin chatting, or 'exit' to quit the chatbot.", true);
                     }
             
@@ -556,7 +556,7 @@ public class Chatbot {
                                 i++;
                             }
                         } catch (IOException e) {
-                            TextEngine.printWithDelay("Failed to load personal FAQ: " + e.getMessage(), false);
+                        TextEngine.printWithDelay("Failed to load personal FAQ: " + e.getMessage(), false);
                         }
                 
                         if (!faqList.isEmpty()) {

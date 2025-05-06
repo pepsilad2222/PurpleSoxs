@@ -68,14 +68,23 @@ public class Chatbot {
                 return;
             } else switch (choice) {
                 case "1" -> Login();
-                case "2" -> {
-                    createProfile();
-                    TextEngine.printWithDelay("Please log in with your new profile.", true);
-                    Login();
-                }
+                case "2" -> createProfile();
+                    
                 default -> {
-                    TextEngine.printWithDelay("Invalid choice. Please restart and select either 1 or 2.", true);
-                    return;
+                    TextEngine.printWithDelay("Invalid choice. Please enter either 1 or 2.", false);
+                    
+                    choice = reader.readLine().trim();
+                    if (null == choice) {
+                       TextEngine.printWithDelay("Invalid choice. Please restart and select either 1 or 2.", true);
+                       return;
+                    } else switch (choice) {
+                        case "1" -> Login();
+                        case "2" -> createProfile();
+                        default -> {
+                            TextEngine.printWithDelay("Exting program for safty...", true);
+                            return;
+                        }
+                    }
                 }
             }
         } catch (IOException e) {

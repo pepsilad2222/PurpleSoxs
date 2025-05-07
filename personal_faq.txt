@@ -1,9 +1,0 @@
-- What classes am I currently in?
-- exit
-- What classes am I in?
-- What grade do I need in this class CS375 to get the credit?
-- What concentrations does the computer science major have?
-- How many more hours are needed to complete my major requirements?
-- How many hours am i taking?
-- What majors classes do I need to graduate?
-- What majors classes do I need to graduate

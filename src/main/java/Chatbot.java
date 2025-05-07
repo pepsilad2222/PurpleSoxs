@@ -478,7 +478,7 @@
               TextEngine.printWithDelay("4. What if I need to change or drop an upcoming course?", true);
               TextEngine.printWithDelay("5. When will final grades be posted?", true);
               TextEngine.printWithDelay("6. What happens if I fail my course(s)?", true);
-              TextEngine.printWithDelay("7. What happens if I’m not financially clear for the next term?", true);
+              TextEngine.printWithDelay("7. What happens if I'm not financially clear for the next term?", true);
               TextEngine.printWithDelay("8. How can I reach my Financial Intake Specialist (FIS) about financial concerns?", true);
               TextEngine.printWithDelay("9. How do I reach out to technical support?", true);
               TextEngine.printWithDelay("\nPlease enter the question number (1 through 9), type 'chat' to begin chatting, or 'back' to return to departments.", true);

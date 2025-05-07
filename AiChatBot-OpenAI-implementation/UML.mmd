@@ -1,0 +1,65 @@
+classDiagram
+    class Chatbot {
+        +main(String[] args)
+        +Login()
+        +createProfile()
+        +FAQs()
+        +setupAssistant() String
+        +startInteractiveChat(String)
+        +saveQuestion(String)
+        +loadQuestionHistory()
+        +parseUserInfo() String
+        +printStartupBanner()
+        +startLoadingAnimation(AtomicBoolean) Thread
+
+        -assistant : OpenAiAssistantEngine
+        -reader : BufferedReader
+        -questionCount : Map<String, Integer>
+        -vectorStoreId : String
+        -assistantId : String
+        -threadId : String
+        -runId : String
+    }
+
+    class OpenAiAssistantEngine {
+        +createAssistant(...)
+        +uploadFile(File, String)
+        +createVectorStore(...)
+        +createThread(...)
+        +addMessageToThread(String, String)
+        +createRun(...)
+        +listMessages(String, String) : List~String~
+        +deleteResource(String, String)
+        +waitForRunCompletion(...)
+    }
+
+    class AssistantClient {
+        -engine : OpenAiAssistantEngine
+        -currentThreadId : String
+        -currentAssistantId : String
+        +sendMessageAndWait(String) : List~String~
+        +startConversation()
+        +endConversation()
+        +deleteAssistant()
+        +withModel(String)
+        +withTool(String)
+        ...
+    }
+
+    class TextEngine {
+        +clearScreen()
+        +printWithDelay(String, boolean)
+        +openSettings(BufferedReader)
+        +setDelay(int)
+        +printRainbowText(String)
+    }
+
+    class chatTimer {
+        +reset()
+        +cancel()
+    }
+
+    Chatbot --> OpenAiAssistantEngine : uses
+    Chatbot --> chatTimer : uses
+    Chatbot --> TextEngine : uses
+    AssistantClient --> OpenAiAssistantEngine : uses

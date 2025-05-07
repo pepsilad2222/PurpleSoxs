@@ -1,7 +1,34 @@
 /*
- * Albert Tucker 
- * CS375
- * ChatBot for classes
+ * 
+ * Chatbot.java
+ * 
+ * Author: Albert Tucker, Michael Aghassi
+ * Course: CS375 - Software Engineering II
+ * 
+ * Description:
+ * This Java program implements an AI-powered academic advising chatbot designed specifically 
+ * for students at Abilene Christian University (ACU). It utilizes OpenAI's Assistant API 
+ * to provide students with real-time responses to academic questions by referencing user-specific 
+ * data stored locally (user_info.txt and acu_database.txt).
+ *
+ * Key Features:
+ * - Login and user profile creation with local credential storage.
+ * - Integration with OpenAI’s Assistant API for natural language interaction.
+ * - File vector store setup for persistent and context-aware question answering.
+ * - Chat session management with inactivity timeouts.
+ * - Chat history tracking and automatic addition to a personal FAQ list after 3 repeated queries.
+ * - Department-specific FAQs for Academic Advising, IT Support, and more.
+ * - Text-based UI enhancements via TextEngine (colors, delayed output, interactive settings).
+ *
+ * Dependencies:
+ * - OpenAiAssistantEngine.java: Handles API interaction and assistant operations.
+ * - TextEngine.java: Provides formatted and timed console output features.
+ * - chatTimer.java: Manages session timeout behavior.
+ * - org.json: For JSON request/response handling.
+ *
+ * Usage:
+ * Compile and run the application. Choose to log in or create a new profile. Once authenticated,
+ * the user can chat with the assistant, access FAQs, or modify settings.
  */
 
  import java.io.BufferedReader;
